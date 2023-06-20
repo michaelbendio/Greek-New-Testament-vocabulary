@@ -1,19 +1,28 @@
-# Create flash cards from morphgnt and Abbott-Smith
-# Each word in each verse in the New Testament is on it's own line with a morphological analysis
-#
-#Columns in morphgnt
+#Columns
 #-------
 # * book/chapter/verse
 # * part of speech
+
 # * parsing code
 # * text (including punctuation)
 # * word (with punctuation
 # * normalized word
 # * lemma
  
-import Abbott_Smith
-
 def main():
+	while True:
+		section()
+		
+	with open('morphgnt', 'r', encoding='utf-8') as f:
+		for word in f:
+			if not word:
+				break
+			words = word.split()
+			print(parsing_code(words[2]), part_of_speech(words[1]))
+			print(words[5] + ' ' + words[6])	# normalized word
+
+
+def section():
 	books = {	# the first value of the tuple is the book code, the second is the number of chapters in the book
 		'Matthew':('01', '28'), 'Mark':('02', '16'), 'Luke':('03', '24'), 'John':('04', '21'), 
 		'Acts':('05', '28'), 'Romans':('06', '16'), '1 Corinthians':('07', '16'), '2 Corinthians':('08', '13'),
@@ -22,69 +31,72 @@ def main():
 		'2 Timothy':('16', '4'), 'Titus':('17', '3'), 'Philemon':('18', '1'), 'Hebrews':('19', '13'),
 		'James':('20', '5'), '1 Peter':('21', '5'), '2 Peter':('22', '3'), '1 John':('23', '5'),
 		'2 John':('24', '1'), '3 John':('25', '1'), 'Jude':('26', '1'), 'Revelation':('27', '22')
-}
-	vocabulary = {}
-#	book = input("book ")
-	book = "Acts"
-	book_code = books[book][0]
+	}
+	print("Start")
+	book = input("book ")
+	code = books[book][0]
 	last_chapter = books[book][1]
-#	chapter = input("chapter (1-" + books[book][1] + ") ")
-#	if len(chapter) == 1:
-#		chapter = '0' + chapter
-	chapter = "21"
-	print(book + " (book_code: " + books[book][0] + ") chapter " + chapter)
+	chapter = input("chapter (1-" + books[book][1] + ") " )
+	if len(chapter) == 1:
+		chapter = '0' + chapter
+	print(book + " (code: " + books[book][0] + ") chapter " + chapter)
 
 	# scan to the book and chapter and get the number of verses
 	f = open('morphgnt', 'r', encoding='utf-8')
 	while True:
 		line = f.readline()
-		if not line:
-			break
-		if line[0:4] != book_code + chapter:	# past the end of the chapter
-			continue
-		result = flash_card_text(line)
-#		breakpoint()
-		print(result)
+		if line[0:4] == code + chapter:
+			break			# at the start of the chapter
 
-#		deleteMe = 0
-		for line in f:
-			if not line or line[0:4] != book_code + chapter:	# past the end of the chapter
-				break
-			result = flash_card_text(line)
-#			if deleteMe > 27:
-#				breakpoint()
-#				deleteMe = 0
-#			else:
-#				deleteMe += 1
-			print(result)
+	verse = 1
+	while True:
+		line = f.readline()
+		if line[0:4] == code + chapter:	# past the end of the chapter
+			verse = line[4:6]
+		else:
+			break
+	print("verse " + verse)
+	verse	= input('verse (1 - )' + verse)
+	print("line " + line)
 	f.close()
 
-# Flashcards Deluxe can import user-defined flash cards formatted like this
-# question {tab} answer {return}
-# where question is the normalized word + lemma, answer is the gloss + parse
-def flash_card_text(line):
-	result = ''
-	parts = line.split()
-	gloss = Abbott_Smith.lookup(parts[6])
-	if gloss == None:
-#		print('Abbott-Smith failed on',parts[6],'in verse',parts[0][4:])
-#		breakpoint()
-#		gloss = Abbott_Smith.lookup(parts[6])	# we want to step into this!
-		gloss = '?'
+#Part of Speech Code
+def part_of_speech(token):
+	match token:
+		case 'A-':
+			return 'adjective'
+		case 'C-':
+			return 'conjunction'
+		case 'D-':
+			return 'adverb'
+		case 'I-':
+			return 'interjection'
+		case 'N-':
+			return 'noun'
+		case 'P':
+			return 'preposition'
+		case 'RA':
+			return 'definite article'
+		case 'RD':
+			return 'demonstrative pronoun'
+		case 'RI':
+			return 'interrogative/indefinite pronoun'
+		case 'RP':
+			return 'personal pronoun'
+		case 'RR':
+			return 'relative pronoun'
+		case 'V-':
+			return 'verb'
+		case 'X-':
+			return 'particle'
+		case '_':
+			return 'part_of_speech: ' + token + ' not recognized.'
 
-	parse =  parsing_code(parts[2])
-	if parse != '':
-		gloss_parse = gloss + ',' +  parse
-	else:
-		gloss_parse = gloss
-	result = parts[6] + ',' + gloss_parse
-	return result
-	
 # Parsing Code
 def parsing_code(s):
 	match s[0]:		# person (1=1st, 2=2nd, 3=3rd)
 		case '-':
-			parse =  ''
+			parse = ''
 		case '1':
 			parse = '1st person '
 		case '2':
@@ -135,9 +147,9 @@ def parsing_code(s):
 			parse += 'accusative '
 	match s[5]:		# number (S=singular, P=plural)
 		case 'S':
-			parse += 'singular '
+			parse += 'singular'
 		case 'P':
-			parse += 'plural '
+			parse += 'plural'		
 	match s[6]:		# gender (M=masculine, F=feminine, N=neuter)
 		case 'M':
 			parse += 'masculine '
@@ -152,6 +164,5 @@ def parsing_code(s):
 			parse += 'superlative'
 	return parse
 
-if __name__ == "__main__":
+if __name__ == '__main__':
 	main()
-
