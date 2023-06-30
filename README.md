@@ -3,6 +3,9 @@ Use morphgnt and the Abbott-Smith GNT dictionary to create a list of vocabulary 
 for a chapter in the Greek New Testament.  
 morphgnt is a verse-by-verse, word-by-word morphological analysis of the New Testament   
 
+See https://github.com/translatable-exegetical-tools/Abbott-Smith and  
+https://github.com/fhardison/abbot-smith-gloss-list/blob/master/gloss-dict.tab  
+
 Morphgnt Rows: one row per word (for each verse, as many rows as there are words).  
  * book/chapter/verse in the form of 2-character groups: bbccvv
  * part of speech
