@@ -1,10 +1,9 @@
-Greek-New-Testament-vocabulary
-Use morphgnt and the Abbott-Smith GNT dictionary to create a list of vocabulary words
-for a chapter in the Greek New Testament.
-morphgnt is a verse-by-verse, word-by-word morphological analysis of the New Testament 
+Greek-New-Testament-vocabulary  
+Use morphgnt and the Abbott-Smith GNT dictionary to create a list of vocabulary words  
+for a chapter in the Greek New Testament.  
+morphgnt is a verse-by-verse, word-by-word morphological analysis of the New Testament   
 
-Morphgnt Rows -- one row per word (for each verse, as many rows as there are words).
--------
+Morphgnt Rows: one row per word (for each verse, as many rows as there are words).  
  * book/chapter/verse in the form of 2-character groups: bbccvv
  * part of speech
  * parsing code
