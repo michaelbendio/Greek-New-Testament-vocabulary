@@ -1,15 +1,48 @@
-#Columns
-#-------
-# * book/chapter/verse
+# Use morphgnt and the Abbott-Smith GNT dictionary to create a list of vocabulary words
+# for a chapter in the Greek New Testament.
+# morphgnt is a verse-by-verse, word-by-word morphological analysis of the New Testament.
+#
+# See https://github.com/translatable-exegetical-tools/Abbott-Smith,
+# https://github.com/fhardison/abbot-smith-gloss-list/blob/master/gloss-dict.tab, and
+# https://github.com/morphgnt/sblgnt
+#
+# I concatenated the morphgnt book files into one file.
+#
+# Take a look at morphgnt before trying to understand this code.
+#
+# Morphgnt Rows -- one row per word (for each verse, as many rows as there are words).
+# -------
+# * book/chapter/verse in the form of 2-character groups: bbccvv
 # * part of speech
-
 # * parsing code
 # * text (including punctuation)
 # * word (with punctuation
 # * normalized word
 # * lemma
+
+# What remains to be done:
+# Write a module that queries the user for NT book and chapter to create a vocabulary list for.
+#		This decouples the front end from the working part and makes a GUI an option.
+# Replace Abbott-Smith.py (slow, ugly parse of every entry until finding the desired lemma)
+# with Abbott-Smith glosses.py which is a python dictionary.
+#
+# Next:
+# Currently I scan morphgnt (5900+ lines) from the beginning to find the requested chapter.
+# I've created a file of tells for the beginning of each chapter. See the seek.py module
+# to see how to use it. Replace the code here that does the scanning with seeking the tell.
+# First just print the morphgnt line for the requested chapter and verify it's correct.
+# Then look up the gloss and add it to a vocabulary file. Maintain a 'seen' file so
+# words that have been saved to a previous vocabulary file aren't added to a new one.
+# The vocabulary file is created in the form 
+# 	'normalized word [\t] lemma, gloss, 
+# so that it can be imported into Flash Cards Deluxe.
+
+import pickle
  
 def main():
+	with open('tells', 'rb') as p:
+		tells = pickle.load(t)
+
 	while True:
 		section()
 		
@@ -32,13 +65,15 @@ def section():
 		'James':('20', '5'), '1 Peter':('21', '5'), '2 Peter':('22', '3'), '1 John':('23', '5'),
 		'2 John':('24', '1'), '3 John':('25', '1'), 'Jude':('26', '1'), 'Revelation':('27', '22')
 	}
-	print("Start")
-	book = input("book ")
-	code = books[book][0]
-	last_chapter = books[book][1]
-	chapter = input("chapter (1-" + books[book][1] + ") " )
-	if len(chapter) == 1:
-		chapter = '0' + chapter
+#	print("Start")
+#	book = input("book ")
+#	code = books[book][0]
+#	last_chapter = books[book][1]
+#	chapter = input("chapter (1-" + books[book][1] + ") " )
+#	if len(chapter) == 1:
+#		chapter = '0' + chapter
+	book = '01'
+	
 	print(book + " (code: " + books[book][0] + ") chapter " + chapter)
 
 	# scan to the book and chapter and get the number of verses
@@ -59,6 +94,64 @@ def section():
 	verse	= input('verse (1 - )' + verse)
 	print("line " + line)
 	f.close()
+
+# -----------------------------------------------------------------
+
+# Here's some code to implement 'seen', 'vocabulary' and flash_card_text()
+
+#	if os.path.exists('seen'):
+#		with open('seen', 'rb') as s:
+#			seen = pickle.load(s)
+#	else:
+#		seen = set()
+#
+#	while True:
+#		line = f.readline()
+#		if not line:
+#			break
+#		if line[0:4] != book_code + chapter:	# past the end of the chapter
+#			continue
+#		word = line.split()[5]
+#		if word in seen:
+#			continue
+#		else:
+#			seen.add(word)
+#		result = flash_card_text(line)
+#		v.write(result+'\n')
+#		for line in f:
+#			if not line or line[0:4] != book_code + chapter:	# past the end of the chapter
+#				break
+#			word = line.split()[5]
+#			if word in seen:
+#				continue
+#			else:
+#				seen.add(word)
+#			result = flash_card_text(line)
+#			v.write(result+'\n')
+#	v.close()	
+#	f.close()
+#	with open('seen', 'wb') as k:	# deal only with never-before seen words
+#		pickle.dump(seen, k)
+
+# Flashcards Deluxe can import user-defined flash cards formatted like this
+# question {tab} answer {return}
+# Format flash_card_text output as normalized word {tab} lemma, gloss, morphology
+#def flash_card_text(line):
+#	result = ''
+#	parts = line.split()
+#	gloss = Abbott_Smith.lookup(parts[6])
+#	if gloss == None:
+#		gloss = '?'
+#
+#	parse =  parsing_code(parts[2])
+#	if parse != '':
+#		gloss_parse = gloss + ',' +  parse
+#	else:
+#		gloss_parse = gloss
+#	result = parts[5] + '\t' + parts[6] + ',' + gloss_parse
+#	return result
+
+# -----------------------------------------------------------------
 
 #Part of Speech Code
 def part_of_speech(token):
